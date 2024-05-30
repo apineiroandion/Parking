@@ -30,7 +30,7 @@ public class TestParking {
 
          Vehiculo v = new Coche("123");
          parking.introducirParking(v);
-         assertTrue(parking.sacarParking(v.getID()));
+         assertTrue(parking.sacarParking(1));
     }
 
     @Test
