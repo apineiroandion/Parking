@@ -1,40 +1,55 @@
 package model;
 
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Parking {
-    private ArrayList<Vehiculo> vehiculos;
-    private int tamañoParking;
-    private int espacioOcupado;
+    private BD conexion;
 
-    public Parking(int tamañoParking) {
-        this.tamañoParking = tamañoParking;
-        this.espacioOcupado = 0;
-        this.vehiculos = new ArrayList<>();
+    public Parking(BD conexion) {
+        this.conexion = conexion;
     }
 
     public boolean introducirParking(Vehiculo v) {
-        if (espacioOcupado + v.getEspacio() <= tamañoParking) {
-            vehiculos.add(v);
-            espacioOcupado += v.getEspacio();
-            return true;
+        String sql = "INSERT INTO Vehiculos (tipo, ocupado) VALUES (?, ?)";
+        try {
+            PreparedStatement ps = conexion.getConn().prepareStatement(sql);
+            ps.setString(1, v instanceof Coche ? "Coche" : "Camion");
+            ps.setBoolean(2, true);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
-    public boolean sacarParking(String ID) {
-        for (Vehiculo v : vehiculos) {
-            if (v.getID().equals(ID)) {
-                vehiculos.remove(v);
-                espacioOcupado -= v.getEspacio();
-                return true;
-            }
+    public boolean sacarParking(int id) {
+        String sql = "DELETE FROM Vehiculos WHERE id = ?";
+        try {
+            PreparedStatement ps = conexion.getConn().prepareStatement(sql);
+            ps.setInt(1, id);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     public void comprobarParking() {
-        System.out.println("Espacio ocupado: " + espacioOcupado);
-        System.out.println("Espacio libre: " + (tamañoParking - espacioOcupado));
+        String sql = "SELECT * FROM Vehiculos";
+        try {
+            PreparedStatement ps = conexion.getConn().prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                System.out.println("ID: " + rs.getInt("id"));
+                System.out.println("Tipo: " + rs.getString("tipo"));
+                System.out.println("Ocupado: " + rs.getBoolean("ocupado"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

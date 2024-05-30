@@ -1,34 +1,28 @@
 package controller;
 
+import model.BD;
 import model.Camion;
 import model.Coche;
 import model.Parking;
-
-import java.util.Scanner;
+import view.ShowParking;
 
 public class Controller {
+    private ShowParking view;
+
+    public Controller() {
+        this.view = new ShowParking();
+    }
 
     public void runApp(){
-        Scanner scanner = new Scanner(System.in);
-        Parking parking = new Parking(10);
+        Parking parking = new Parking(new BD("jdbc:mysql://localhost:3306/parking", "root", "root"));
 
         while (true) {
-            System.out.println("1. Introducir vehículo");
-            System.out.println("2. Sacar vehículo");
-            System.out.println("3. Comprobar estado");
-            System.out.println("4. Salir");
-            System.out.print("Elige una opción: ");
-            int opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = view.showMenuAndGetOption();
 
             switch (opcion) {
                 case 1:
-                    System.out.print("Introduce el ID del vehículo: ");
-                    String ID = scanner.nextLine();
-                    System.out.println("1. Coche");
-                    System.out.println("2. Camión");
-                    System.out.print("Elige el tipo de vehículo: ");
-                    int tipo = scanner.nextInt();
+                    String ID = view.getVehicleId();
+                    int tipo = view.getVehicleType();
                     if (tipo == 1) {
                         parking.introducirParking(new Coche(ID));
                     } else if (tipo == 2) {
@@ -36,9 +30,8 @@ public class Controller {
                     }
                     break;
                 case 2:
-                    System.out.print("Introduce el ID del vehículo a sacar: ");
-                    ID = scanner.nextLine();
-                    parking.sacarParking(ID);
+                    ID = view.getVehicleId();
+                    parking.sacarParking(Integer.parseInt(ID));
                     break;
                 case 3:
                     parking.comprobarParking();
